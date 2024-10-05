@@ -1,5 +1,6 @@
 package steps;
 
+import KitchenSink.Member;
 import io.cucumber.core.internal.com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
@@ -18,13 +19,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Steps {
 
+    private final String legacyBaseUrl = "http://localhost:8080/kitchensink/rest/members/";
+    private final String baseUrl = "http://localhost:8082/members/";
+
     private Member fetchedMember;
+    private int statusCode;
+
+    @When("retrieving member with id {int} using legacy")
+    public void retrieving_member_with_id_using_legacy(int memberId) throws IOException, InterruptedException {
+        get_member(legacyBaseUrl, memberId);
+    }
 
     @When("retrieving member with id {int}")
     public void retrieving_member_with_id(int memberId) throws IOException, InterruptedException {
+        get_member(baseUrl, memberId);
+    }
+
+    private void get_member(String baseUrl, int memberId) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
 
-        String url = "http://localhost:8080/kitchensink/rest/members/" + memberId;
+        String url = baseUrl + memberId;
 
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url))
                 .method("GET", HttpRequest.BodyPublishers.noBody())
@@ -34,11 +48,16 @@ public class Steps {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(200, response.statusCode());
+        statusCode = response.statusCode();
         fetchedMember = objectMapper.readValue(response.body(), Member.class);
     }
 
-    @Then("The following member should be returned:")
+    @Then("status code should be {int}")
+    public void status_code_should_be(int expectedStatusCode) {
+        assertEquals(expectedStatusCode, statusCode);
+    }
+
+    @Then("the following member should be returned:")
     public void the_following_member_should_be_returned(io.cucumber.datatable.DataTable dataTable) {
         Member expectedMember = extractMemberFrom(dataTable);
 
