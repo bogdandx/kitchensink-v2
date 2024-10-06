@@ -31,13 +31,12 @@ public class MemberControllerTests {
 
     @Test
     public void should_return_member_from_service_as_json() throws Exception {
-        Member expectedMember = new Member();
-        expectedMember.setId(54);
-        expectedMember.setName("Bob");
-        expectedMember.setPhoneNumber("9876543210");
-        expectedMember.setEmail("bob@gmail.com");
-
-        when(memberService.getMember(4)).thenReturn(expectedMember);
+        when(memberService.getMember(4)).thenReturn(
+                Member.builder()
+                    .id(54)
+                    .name("Bob")
+                    .phoneNumber("9876543210")
+                    .email("bob@gmail.com").build());
 
         this.mockMvc.perform(get("/members/4"))
                 .andExpect(content()

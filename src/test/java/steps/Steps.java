@@ -70,18 +70,18 @@ public class Steps {
     private static Member extractMemberFrom(DataTable dataTable) {
         List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
 
-        if (rows.size() != 1){
+        if (rows.size() != 1) {
             throw new InvalidParameterException("This method supports data tables with exactly one expectedMember");
         }
 
         Map<String, String> columns = rows.get(0);
-        var member = new Member();
-        member.setId(Integer.parseInt(columns.get("Id")));
-        member.setName(columns.get("Name"));
-        member.setPhoneNumber((columns.get("Phone Number")));
-        member.setEmail((columns.get("Email")));
 
-        return member;
+        return Member.builder()
+                .id(Integer.parseInt(columns.get("Id")))
+                .name(columns.get("Name"))
+                .phoneNumber(columns.get("Phone Number"))
+                .email(columns.get("Email"))
+                .build();
     }
 
 }
