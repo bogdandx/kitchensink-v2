@@ -7,10 +7,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class MemberController {
-    @GetMapping("/members/{memberId}")
-    public Member getUniverseMeaning(@PathVariable int memberId){
-        Member member = new Member();
-        member.setId(memberId);
-        return member;
+    private final MemberService memberService;
+
+    public MemberController(MemberService memberService) {
+        this.memberService = memberService;
+    }
+
+    @GetMapping(value = "/members/{memberId}")
+    public Member getMember(@PathVariable int memberId){
+        return memberService.getMember(memberId);
     }
 }
