@@ -1,4 +1,4 @@
-package steps;
+package acceptance.steps;
 
 import KitchenSink.Member;
 import io.cucumber.core.internal.com.fasterxml.jackson.databind.ObjectMapper;
