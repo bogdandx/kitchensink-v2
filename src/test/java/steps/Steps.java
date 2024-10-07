@@ -5,6 +5,7 @@ import io.cucumber.core.internal.com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,15 +20,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Steps {
 
-    private final String legacyBaseUrl = "http://localhost:8080/kitchensink/rest/members/";
-    private final String baseUrl = "http://localhost:8082/members/";
+    @Value("${rest.url}")
+    private String baseUrl;
 
     private Member fetchedMember;
     private int statusCode;
 
     @When("retrieving member with id {int} using legacy")
     public void retrieving_member_with_id_using_legacy(int memberId) throws IOException, InterruptedException {
-        get_member(legacyBaseUrl, memberId);
+        get_member(baseUrl, memberId);
     }
 
     @When("retrieving member with id {int}")

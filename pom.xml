@@ -73,6 +73,12 @@
 
 		<dependency>
 			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-spring</artifactId>
+			<version>7.20.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.cucumber</groupId>
 			<artifactId>cucumber-junit</artifactId>
 			<version>7.20.0</version>
 			<scope>test</scope>
@@ -96,8 +102,31 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.5.1</version>
+				<configuration>
+					<systemPropertyVariables>
+						<rest.url>${rest.url}</rest.url>
+					</systemPropertyVariables>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>legacy</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<rest.url>http://localhost:8080/kitchensink/rest/members/</rest.url>
+			</properties>
+		</profile>
+		<profile>
+			<id>modern</id>
+			<properties>
+				<rest.url>http://localhost:8082/members/</rest.url>
+			</properties>
+		</profile>
+	</profiles>
 
 </project>
