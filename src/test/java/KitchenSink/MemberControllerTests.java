@@ -53,7 +53,15 @@ public class MemberControllerTests {
     public void should_return_status_200_if_the_service_returned_a_member() throws Exception {
         when(memberService.getMember(4)).thenReturn(new Member());
 
-        this.mockMvc.perform(get("/members/54"))
+        this.mockMvc.perform(get("/members/4"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void should_return_status_404_if_the_service_returned_null() throws Exception {
+        when(memberService.getMember(4)).thenReturn(null);
+
+        this.mockMvc.perform(get("/members/54"))
+                .andExpect(status().isNotFound());
     }
 }

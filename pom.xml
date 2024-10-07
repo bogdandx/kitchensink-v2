@@ -114,9 +114,6 @@
 	<profiles>
 		<profile>
 			<id>legacy</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<properties>
 				<rest.url>http://localhost:8080/kitchensink/rest/members/</rest.url>
 			</properties>
