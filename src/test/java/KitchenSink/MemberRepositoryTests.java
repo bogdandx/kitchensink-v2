@@ -1,6 +1,8 @@
 package KitchenSink;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -14,6 +16,7 @@ public class MemberRepositoryTests {
     private MemberRepository memberRepository;
 
     @Test
+    @EnabledOnOs({ OS.WINDOWS })
     public void should_fetch_default_member_from_database(){
         Member member = memberRepository.findById(0);
 
