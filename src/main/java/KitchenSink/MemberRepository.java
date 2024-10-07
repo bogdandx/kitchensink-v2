@@ -1,10 +1,7 @@
 package KitchenSink;
 
-import org.springframework.stereotype.Component;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Component
-public class MemberRepository {
-    public Member findById(int memberId){
-        return  null;
-    }
+public interface MemberRepository extends JpaRepository<Member,Integer> {
+    Member findById(int memberId);
 }
