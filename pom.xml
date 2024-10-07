@@ -122,13 +122,13 @@
 		<profile>
 			<id>legacy</id>
 			<properties>
-				<rest.url>http://localhost:8080/kitchensink/rest/members/</rest.url>
+				<rest.url>http://localhost:8080/kitchensink/rest/members</rest.url>
 			</properties>
 		</profile>
 		<profile>
 			<id>modern</id>
 			<properties>
-				<rest.url>http://localhost:8082/members/</rest.url>
+				<rest.url>http://localhost:8082/members</rest.url>
 			</properties>
 		</profile>
 	</profiles>

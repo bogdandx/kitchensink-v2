@@ -35,7 +35,7 @@ public class Steps {
     public void retrieving_member_with_id(long memberId) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
 
-        String url = baseUrl + memberId;
+        String url = baseUrl + "/" + memberId;
 
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url))
                 .method("GET", HttpRequest.BodyPublishers.noBody())

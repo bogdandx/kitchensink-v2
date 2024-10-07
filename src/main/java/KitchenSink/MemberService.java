@@ -14,4 +14,8 @@ public class MemberService {
     public Member getMember(int memberId) {
         return memberRepository.findById(memberId);
     }
+
+    public void createMember(Member member) {
+
+    }
 }
