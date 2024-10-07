@@ -33,7 +33,7 @@ public class MemberControllerTests {
     public void should_return_member_from_service_as_json() throws Exception {
         when(memberService.getMember(4)).thenReturn(
                 Member.builder()
-                    .id(54)
+                    .id(54L)
                     .name("Bob")
                     .phoneNumber("9876543210")
                     .email("bob@gmail.com").build());

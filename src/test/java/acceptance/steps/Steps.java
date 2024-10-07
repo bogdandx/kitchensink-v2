@@ -1,6 +1,7 @@
 package acceptance.steps;
 
 import KitchenSink.Member;
+import com.google.gson.Gson;
 import io.cucumber.core.internal.com.fasterxml.jackson.core.JsonProcessingException;
 import io.cucumber.core.internal.com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.datatable.DataTable;
@@ -14,6 +15,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.security.InvalidParameterException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 
@@ -26,8 +31,8 @@ public class Steps {
     private int statusCode;
     private String responseBody;
 
-    @When("retrieving member with id {int}")
-    public void retrieving_member_with_id(int memberId) throws IOException, InterruptedException {
+    @When("retrieving member with id {long}")
+    public void retrieving_member_with_id(long memberId) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
 
         String url = baseUrl + memberId;
@@ -35,8 +40,6 @@ public class Steps {
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url))
                 .method("GET", HttpRequest.BodyPublishers.noBody())
                 .build();
-
-        ObjectMapper objectMapper = new ObjectMapper();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -62,6 +65,45 @@ public class Steps {
         assertEquals(expectedMember.getEmail(), fetchedMember.getEmail());
     }
 
+    @When("creating the following member")
+    public void creating_the_following_member(io.cucumber.datatable.DataTable dataTable) throws IOException, InterruptedException, SQLException {
+        cleanDatabase();
+
+        Member member = extractMemberFrom(dataTable);
+
+        Gson gson = new Gson();
+        String memberAsJson = gson.toJson(member);
+
+        HttpClient client = HttpClient.newHttpClient();
+
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(baseUrl))
+                .header("Content-Type", "application/json")
+                .method("POST", HttpRequest.BodyPublishers.ofString(memberAsJson))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        statusCode = response.statusCode();
+        responseBody = response.body();
+    }
+
+    @Then("the member should be returned when retrieved by id with the following attributes")
+    public void the_member_should_be_returned_when_retrieved_by_id_with_the_following_attributes(io.cucumber.datatable.DataTable dataTable) throws IOException, InterruptedException {
+        Member member = extractMemberFrom(dataTable);
+
+        retrieving_member_with_id(member.getId());
+
+        the_following_member_should_be_returned(dataTable);
+    }
+
+    private void cleanDatabase() throws SQLException {
+        Connection conn = DriverManager.getConnection ("jdbc:h2:/data/kitchensinkDB;;AUTO_SERVER=TRUE", "sa","sa");
+        Statement st = conn.createStatement();
+        st.executeUpdate("delete from Member where id <> 0");
+        conn.close();
+    }
+
+
     private static Member extractMemberFrom(DataTable dataTable) {
         List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
 
@@ -71,12 +113,16 @@ public class Steps {
 
         Map<String, String> columns = rows.get(0);
 
+        Long id = null;
+        if (columns.containsKey("Id")){
+            id = Long.parseLong(columns.get("Id"));
+        }
+
         return Member.builder()
-                .id(Integer.parseInt(columns.get("Id")))
+                .id(id)
                 .name(columns.get("Name"))
                 .phoneNumber(columns.get("Phone Number"))
                 .email(columns.get("Email"))
                 .build();
     }
-
 }

@@ -1,5 +1,5 @@
 Feature:
-  Members management
+  Get member by id
 
   Scenario: Default member
     When retrieving member with id 0
