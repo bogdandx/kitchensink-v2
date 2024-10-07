@@ -1,6 +1,7 @@
 package acceptance.steps;
 
 import KitchenSink.Member;
+import io.cucumber.core.internal.com.fasterxml.jackson.core.JsonProcessingException;
 import io.cucumber.core.internal.com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
@@ -22,9 +23,8 @@ public class Steps {
 
     @Value("${rest.url}")
     private String baseUrl;
-
-    private Member fetchedMember;
     private int statusCode;
+    private String responseBody;
 
     @When("retrieving member with id {int}")
     public void retrieving_member_with_id(int memberId) throws IOException, InterruptedException {
@@ -41,7 +41,7 @@ public class Steps {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         statusCode = response.statusCode();
-        fetchedMember = objectMapper.readValue(response.body(), Member.class);
+        responseBody = response.body();
     }
 
     @Then("status code should be {int}")
@@ -50,7 +50,10 @@ public class Steps {
     }
 
     @Then("the following member should be returned:")
-    public void the_following_member_should_be_returned(io.cucumber.datatable.DataTable dataTable) {
+    public void the_following_member_should_be_returned(io.cucumber.datatable.DataTable dataTable) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Member fetchedMember = objectMapper.readValue(responseBody, Member.class);
+
         Member expectedMember = extractMemberFrom(dataTable);
 
         assertEquals(expectedMember.getId(), fetchedMember.getId());
