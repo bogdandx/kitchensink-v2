@@ -26,17 +26,8 @@ public class Steps {
     private Member fetchedMember;
     private int statusCode;
 
-    @When("retrieving member with id {int} using legacy")
-    public void retrieving_member_with_id_using_legacy(int memberId) throws IOException, InterruptedException {
-        get_member(baseUrl, memberId);
-    }
-
     @When("retrieving member with id {int}")
     public void retrieving_member_with_id(int memberId) throws IOException, InterruptedException {
-        get_member(baseUrl, memberId);
-    }
-
-    private void get_member(String baseUrl, int memberId) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
 
         String url = baseUrl + memberId;
