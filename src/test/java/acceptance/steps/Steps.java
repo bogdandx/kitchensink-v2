@@ -29,8 +29,8 @@ public class Steps {
 
     @Value("${rest.url}")
     private String baseUrl;
-    private int statusCode;
-    private String responseBody;
+    private int lastStatusCode;
+    private String lastResponseBody;
 
     @When("retrieving member with id {long}")
     public void retrieving_member_with_id(long memberId) throws IOException, InterruptedException {
@@ -44,35 +44,24 @@ public class Steps {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        statusCode = response.statusCode();
-        responseBody = response.body();
+        lastStatusCode = response.statusCode();
+        lastResponseBody = response.body();
     }
 
     @When("retrieving all members")
     public void retrieving_all_members() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-
-        String url = baseUrl;
-
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url))
-                .method("GET", HttpRequest.BodyPublishers.noBody())
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        statusCode = response.statusCode();
-        responseBody = response.body();
+        sendRequestGetAll();
     }
 
     @Then("status code should be {int}")
     public void status_code_should_be(int expectedStatusCode) {
-        assertEquals(expectedStatusCode, statusCode);
+        assertEquals(expectedStatusCode, lastStatusCode);
     }
 
     @Then("the following member should be returned:")
     public void the_following_member_should_be_returned(io.cucumber.datatable.DataTable dataTable) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        Member fetchedMember = objectMapper.readValue(responseBody, Member.class);
+        Member fetchedMember = objectMapper.readValue(lastResponseBody, Member.class);
 
         Member expectedMember = extractSingleMemberFrom(dataTable);
 
@@ -82,7 +71,7 @@ public class Steps {
     @Then("the following members should be returned:")
     public void the_following_members_should_be_returned(io.cucumber.datatable.DataTable dataTable) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        Member[] fetchedMembers = objectMapper.readValue(responseBody, Member[].class);
+        Member[] fetchedMembers = objectMapper.readValue(lastResponseBody, Member[].class);
 
         List<Member> expectedMembers = extractMembersFrom(dataTable);
 
@@ -91,7 +80,7 @@ public class Steps {
     }
 
     @When("creating the following member")
-    public void creating_the_following_member(io.cucumber.datatable.DataTable dataTable) throws IOException, InterruptedException, SQLException {
+    public void creating_the_following_member(DataTable dataTable) throws IOException, InterruptedException, SQLException {
         Member member = extractSingleMemberFrom(dataTable);
 
         Gson gson = new Gson();
@@ -106,8 +95,36 @@ public class Steps {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        statusCode = response.statusCode();
-        responseBody = response.body();
+        lastStatusCode = response.statusCode();
+        lastResponseBody = response.body();
+    }
+
+    @Then("the list of persisted members should be equal to")
+    public void the_list_of_persisted_members_should_be_equal_to(DataTable dataTable) throws IOException, InterruptedException {
+        List<Member> expectedMembers = extractMembersFrom(dataTable);
+
+        sendRequestGetAll();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Member[] fetchedMembers = objectMapper.readValue(lastResponseBody, Member[].class);
+
+        assertThat(fetchedMembers.length).isEqualTo(expectedMembers.size());
+        assertThatCollection(Arrays.asList(fetchedMembers))
+                .usingElementComparatorIgnoringFields("id")
+                .containsExactlyInAnyOrderElementsOf(expectedMembers);
+    }
+
+    private void sendRequestGetAll() throws IOException, InterruptedException {
+        HttpClient client = HttpClient.newHttpClient();
+
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(baseUrl))
+                .method("GET", HttpRequest.BodyPublishers.noBody())
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        lastStatusCode = response.statusCode();
+        lastResponseBody = response.body();
     }
 
     private static Member extractSingleMemberFrom(DataTable dataTable){
@@ -123,10 +140,6 @@ public class Steps {
     private static List<Member> extractMembersFrom(DataTable dataTable) {
         List<Member> members = new ArrayList<>();
         List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
-
-        if (rows.size() != 1) {
-            throw new InvalidParameterException("This method supports data tables with exactly one expectedMember");
-        }
 
         for(Map<String, String> row : rows){
             Long id = null;
