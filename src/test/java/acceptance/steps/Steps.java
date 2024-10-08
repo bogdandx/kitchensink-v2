@@ -15,10 +15,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.security.InvalidParameterException;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +33,22 @@ public class Steps {
         HttpClient client = HttpClient.newHttpClient();
 
         String url = baseUrl + "/" + memberId;
+
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url))
+                .method("GET", HttpRequest.BodyPublishers.noBody())
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        statusCode = response.statusCode();
+        responseBody = response.body();
+    }
+
+    @When("retrieving all members")
+    public void retrieving_all_members() throws IOException, InterruptedException {
+        HttpClient client = HttpClient.newHttpClient();
+
+        String url = baseUrl;
 
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url))
                 .method("GET", HttpRequest.BodyPublishers.noBody())
@@ -65,10 +78,22 @@ public class Steps {
         assertEquals(expectedMember.getEmail(), fetchedMember.getEmail());
     }
 
+    @Then("the following members should be returned:")
+    public void the_following_members_should_be_returned(io.cucumber.datatable.DataTable dataTable) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Member[] fetchedMembers = objectMapper.readValue(responseBody, Member[].class);
+
+        Member expectedMember = extractMemberFrom(dataTable);
+
+        assertEquals(1, fetchedMembers.length );
+        assertEquals(expectedMember.getId(), fetchedMembers[0].getId());
+        assertEquals(expectedMember.getName(), fetchedMembers[0].getName());
+        assertEquals(expectedMember.getPhoneNumber(), fetchedMembers[0].getPhoneNumber());
+        assertEquals(expectedMember.getEmail(), fetchedMembers[0].getEmail());
+    }
+
     @When("creating the following member")
     public void creating_the_following_member(io.cucumber.datatable.DataTable dataTable) throws IOException, InterruptedException, SQLException {
-        cleanDatabase();
-
         Member member = extractMemberFrom(dataTable);
 
         Gson gson = new Gson();
@@ -96,12 +121,7 @@ public class Steps {
         the_following_member_should_be_returned(dataTable);
     }
 
-    private void cleanDatabase() throws SQLException {
-        Connection conn = DriverManager.getConnection ("jdbc:h2:/data/kitchensinkDB;;AUTO_SERVER=TRUE", "sa","sa");
-        Statement st = conn.createStatement();
-        st.executeUpdate("delete from Member where id <> 0");
-        conn.close();
-    }
+
 
 
     private static Member extractMemberFrom(DataTable dataTable) {
