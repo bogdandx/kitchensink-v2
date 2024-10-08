@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,7 @@ public class Member{
     @GeneratedValue
     private Long id;
     private String name;
+    @Email
     private String email;
     @Digits(fraction = 0, integer = 12)
     @Size(min = 10, max = 12)

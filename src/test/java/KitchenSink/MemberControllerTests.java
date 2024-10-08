@@ -177,4 +177,20 @@ public class MemberControllerTests {
                             "phoneNumber":"numeric value out of bounds (<12 digits>.<0 digits> expected)"
                         }"""));
     }
+
+    @Test
+    public void create_member_should_return_status_400_if_email_not_well_formed() throws Exception {
+        this.mockMvc.perform(post("/members").content("""
+                        {
+                            "id":null,
+                            "name":"Rick",
+                            "phoneNumber":"1234567890",
+                            "email": "rick-at-gmail.com"
+                        }""").header("Content-Type", "application/json"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json("""
+                        {
+                            "email":"must be a well-formed email address"
+                        }"""));
+    }
 }
