@@ -9,5 +9,6 @@ Feature:
       | 0  | John Smith | 2125551212   | john.smith@mailinator.com |
 
   Scenario: Non existing member
+    Given member with id 500 does not exist
     When retrieving member with id 500
     Then status code should be 404

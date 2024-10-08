@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import io.cucumber.core.internal.com.fasterxml.jackson.core.JsonProcessingException;
 import io.cucumber.core.internal.com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,10 +28,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Steps {
 
+    private final ScenarioContext scenarioContext;
     @Value("${rest.url}")
     private String baseUrl;
     private int lastStatusCode;
     private String lastResponseBody;
+
+    public Steps(ScenarioContext scenarioContext){
+
+        this.scenarioContext = scenarioContext;
+    }
+
+    @Given("member with id {int} does not exist")
+    public void member_with_id_does_not_exist(int memberId) throws SQLException {
+        scenarioContext.getDatabase().deleteMember(memberId);
+    }
 
     @When("retrieving member with id {long}")
     public void retrieving_member_with_id(long memberId) throws IOException, InterruptedException {
