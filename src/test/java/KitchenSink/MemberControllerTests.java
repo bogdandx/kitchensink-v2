@@ -84,18 +84,11 @@ public class MemberControllerTests {
         verify(memberService).createMember(argument.capture());
 
         Member deserializedMember = argument.getValue();
-        assertMemberEquality(deserializedMember, Member.builder()
+        assertThat(deserializedMember).isEqualTo(Member.builder()
                                                     .id(null)
                                                     .name("Rick")
                                                     .phoneNumber("73738383990")
                                                     .email("rick@gmail.com")
                                                 .build());
-    }
-
-    private void assertMemberEquality(Member actual, Member expected){
-        assertThat(actual.getId()).isEqualTo(expected.getId());
-        assertThat(actual.getName()).isEqualTo(expected.getName());
-        assertThat(actual.getPhoneNumber()).isEqualTo(expected.getPhoneNumber());
-        assertThat(actual.getEmail()).isEqualTo(expected.getEmail());
     }
 }

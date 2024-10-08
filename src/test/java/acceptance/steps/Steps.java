@@ -16,9 +16,13 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.security.InvalidParameterException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCollection;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Steps {
@@ -70,12 +74,9 @@ public class Steps {
         ObjectMapper objectMapper = new ObjectMapper();
         Member fetchedMember = objectMapper.readValue(responseBody, Member.class);
 
-        Member expectedMember = extractMemberFrom(dataTable);
+        Member expectedMember = extractSingleMemberFrom(dataTable);
 
-        assertEquals(expectedMember.getId(), fetchedMember.getId());
-        assertEquals(expectedMember.getName(), fetchedMember.getName());
-        assertEquals(expectedMember.getPhoneNumber(), fetchedMember.getPhoneNumber());
-        assertEquals(expectedMember.getEmail(), fetchedMember.getEmail());
+        assertThat(fetchedMember).isEqualTo(expectedMember);
     }
 
     @Then("the following members should be returned:")
@@ -83,18 +84,15 @@ public class Steps {
         ObjectMapper objectMapper = new ObjectMapper();
         Member[] fetchedMembers = objectMapper.readValue(responseBody, Member[].class);
 
-        Member expectedMember = extractMemberFrom(dataTable);
+        List<Member> expectedMembers = extractMembersFrom(dataTable);
 
-        assertEquals(1, fetchedMembers.length );
-        assertEquals(expectedMember.getId(), fetchedMembers[0].getId());
-        assertEquals(expectedMember.getName(), fetchedMembers[0].getName());
-        assertEquals(expectedMember.getPhoneNumber(), fetchedMembers[0].getPhoneNumber());
-        assertEquals(expectedMember.getEmail(), fetchedMembers[0].getEmail());
+        assertThat(fetchedMembers.length).isEqualTo(expectedMembers.size());
+        assertThatCollection(Arrays.asList(fetchedMembers)).isEqualTo(expectedMembers);
     }
 
     @When("creating the following member")
     public void creating_the_following_member(io.cucumber.datatable.DataTable dataTable) throws IOException, InterruptedException, SQLException {
-        Member member = extractMemberFrom(dataTable);
+        Member member = extractSingleMemberFrom(dataTable);
 
         Gson gson = new Gson();
         String memberAsJson = gson.toJson(member);
@@ -112,37 +110,38 @@ public class Steps {
         responseBody = response.body();
     }
 
-    @Then("the member should be returned when retrieved by id with the following attributes")
-    public void the_member_should_be_returned_when_retrieved_by_id_with_the_following_attributes(io.cucumber.datatable.DataTable dataTable) throws IOException, InterruptedException {
-        Member member = extractMemberFrom(dataTable);
+    private static Member extractSingleMemberFrom(DataTable dataTable){
+        List<Member> members = extractMembersFrom(dataTable);
 
-        retrieving_member_with_id(member.getId());
+        if (members.size() != 1){
+            throw new InvalidParameterException("Only data tables with exactly one row are supported!");
+        }
 
-        the_following_member_should_be_returned(dataTable);
+        return members.getFirst();
     }
 
-
-
-
-    private static Member extractMemberFrom(DataTable dataTable) {
+    private static List<Member> extractMembersFrom(DataTable dataTable) {
+        List<Member> members = new ArrayList<>();
         List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
 
         if (rows.size() != 1) {
             throw new InvalidParameterException("This method supports data tables with exactly one expectedMember");
         }
 
-        Map<String, String> columns = rows.get(0);
+        for(Map<String, String> row : rows){
+            Long id = null;
+            if (row.containsKey("Id")){
+                id = Long.parseLong(row.get("Id"));
+            }
 
-        Long id = null;
-        if (columns.containsKey("Id")){
-            id = Long.parseLong(columns.get("Id"));
+            members.add( Member.builder()
+                    .id(id)
+                    .name(row.get("Name"))
+                    .phoneNumber(row.get("Phone Number"))
+                    .email(row.get("Email"))
+                    .build());
         }
 
-        return Member.builder()
-                .id(id)
-                .name(columns.get("Name"))
-                .phoneNumber(columns.get("Phone Number"))
-                .email(columns.get("Email"))
-                .build();
+        return members;
     }
 }
