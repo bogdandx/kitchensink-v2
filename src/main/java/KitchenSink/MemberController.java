@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @RestController
 public class MemberController {
     private final MemberService memberService;
@@ -22,6 +24,12 @@ public class MemberController {
         }
 
         return member;
+    }
+
+    @GetMapping(value = "/members")
+    public Member[] getAllMembers(){
+        List<Member> members = memberService.getAllMembers();
+        return members.toArray(Member[]::new);
     }
 
     @PostMapping(value = "/members")

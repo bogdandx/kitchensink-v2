@@ -6,6 +6,8 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Arrays;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -66,6 +68,38 @@ public class MemberControllerTests {
 
         this.mockMvc.perform(get("/members/54"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void get_all_member_should_return_members_from_service_as_json_array() throws Exception {
+        when(memberService.getAllMembers()).thenReturn(
+                Arrays.asList(
+                    Member.builder()
+                            .id(54L)
+                            .name("Bob")
+                            .phoneNumber("9876543210")
+                            .email("bob@gmail.com").build(),
+                    Member.builder()
+                            .id(67L)
+                            .name("Rick")
+                            .phoneNumber("4543534534")
+                            .email("rick@gmail.com").build()));
+
+        this.mockMvc.perform(get("/members"))
+                .andExpect(content()
+                        .json("""
+                        [{
+                            "id":54,
+                            "name":"Bob",
+                            "phoneNumber":"9876543210",
+                            "email": "bob@gmail.com"
+                        },
+                        {
+                            "id":67,
+                            "name":"Rick",
+                            "phoneNumber":"4543534534",
+                            "email": "rick@gmail.com"
+                        }]"""));
     }
 
     @Test
