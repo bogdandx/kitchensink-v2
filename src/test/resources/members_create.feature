@@ -22,3 +22,12 @@ Feature:
     And response message should contain the following errors
       | Field | Error       |
       | email | Email taken |
+
+  Scenario: Invalid phone number
+    When creating the following member
+      | Name         | Phone Number   | Email                  |
+      | Donna Davids | 34242342324343 | donna.davids@gmail.com |
+    Then status code should be 400
+    And response message should contain the following errors
+      | Field       | Error                                                         |
+      | phoneNumber | size must be between 10 and 12 |
