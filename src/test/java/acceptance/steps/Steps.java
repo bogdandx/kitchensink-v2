@@ -72,10 +72,15 @@ public class Steps {
         assertThatCollection(Arrays.asList(fetchedMembers)).isEqualTo(expectedMembers);
     }
 
+    @Given("the following members exist")
+    public void the_following_members_exist(DataTable dataTable) {
+        Member member = extractSingleMemberFromTable(dataTable);
+        restClient.createMember(member);
+    }
+
     @When("creating the following member")
     public void creating_the_following_member(DataTable dataTable) {
         Member member = extractSingleMemberFromTable(dataTable);
-
         restClient.createMember(member);
     }
 
