@@ -23,11 +23,20 @@ Feature:
       | Field | Error       |
       | email | Email taken |
 
-  Scenario: Invalid phone number
+  Scenario: Phone number of an invalid size
     When creating the following member
       | Name         | Phone Number   | Email                  |
-      | Donna Davids | 34242342324343 | donna.davids@gmail.com |
+      | Donna Davids | 34324343 | donna.davids@gmail.com |
     Then status code should be 400
     And response message should contain the following errors
-      | Field       | Error                                                         |
+      | Field       | Error                          |
       | phoneNumber | size must be between 10 and 12 |
+
+  Scenario: Phone number contains non-numeric characters
+    When creating the following member
+      | Name         | Phone Number   | Email                  |
+      | Donna Davids | 3442x2324343 | donna.davids@gmail.com |
+    Then status code should be 400
+    And response message should contain the following errors
+      | Field       | Error                          |
+      | phoneNumber | numeric value out of bounds (<12 digits>.<0 digits> expected) |

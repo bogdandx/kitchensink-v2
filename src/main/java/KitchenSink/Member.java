@@ -3,6 +3,7 @@ package KitchenSink;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,7 @@ public class Member{
     private Long id;
     private String name;
     private String email;
+    @Digits(fraction = 0, integer = 12)
     @Size(min = 10, max = 12)
     private String phoneNumber;
 }

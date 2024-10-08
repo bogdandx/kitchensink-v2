@@ -134,9 +134,9 @@ public class Steps {
 
             members.add( Member.builder()
                     .id(id)
-                    .name(row.get("Name"))
-                    .phoneNumber(row.get("Phone Number"))
-                    .email(row.get("Email"))
+                    .name(row.get("Name").trim())
+                    .phoneNumber(row.get("Phone Number").trim())
+                    .email(row.get("Email").trim())
                     .build());
         }
 
