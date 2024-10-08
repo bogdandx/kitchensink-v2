@@ -54,4 +54,27 @@ public class MemberRepositoryTests {
         List<Member> allMembers = memberRepository.findAll();
         assertThat(allMembers).contains(member);
     }
+
+    @Test
+    @EnabledOnOs({ OS.WINDOWS })
+    public void exists_member_by_email_should_return_true_if_the_email_is_associated_with_another_member(){
+        Member member = Member.builder()
+                .name("Rick")
+                .email("rick@gmail.com")
+                .phoneNumber("5436788665")
+                .build();
+        memberRepository.save(member);
+
+        boolean exists = memberRepository.existsMemberByEmail("rick@gmail.com");
+
+        assertThat(exists).isTrue();
+    }
+
+    @Test
+    @EnabledOnOs({ OS.WINDOWS })
+    public void exists_member_by_email_should_return_false_if_there_are_no_members_with_that_email(){
+        boolean exists = memberRepository.existsMemberByEmail("rick@gmail.com");
+
+        assertThat(exists).isFalse();
+    }
 }

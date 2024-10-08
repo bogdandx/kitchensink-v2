@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCollection;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class MemberServiceTests {
@@ -40,11 +39,23 @@ public class MemberServiceTests {
     }
 
     @Test
-    public void should_create_member_using_repository(){
+    public void should_create_member_using_repository() throws EmailTakenException {
         Member member = new Member();
 
         memberService.createMember(member);
 
         verify(repository).save(member);
+    }
+
+    @Test
+    public void should_throw_email_taken_exception_if_email_already_in_use() {
+        when(repository.existsMemberByEmail("tara.scott@gmail.com")).thenReturn(true);
+
+        Member member = Member.builder()
+                .email("tara.scott@gmail.com").build();
+
+        Throwable throwable = catchThrowable(() -> memberService.createMember(member));
+
+        assertThat(throwable).isInstanceOf(EmailTakenException.class);
     }
 }

@@ -103,7 +103,7 @@ public class MemberControllerTests {
     }
 
     @Test
-    public void create_member_should_invoke_service_with_member_data() throws Exception {
+    public void create_member_should_invoke_service_with_member_data() throws Exception, EmailTakenException {
         ArgumentCaptor<Member> argument = ArgumentCaptor.forClass(Member.class);
 
         this.mockMvc.perform(post("/members").content("""
@@ -124,5 +124,19 @@ public class MemberControllerTests {
                                                     .phoneNumber("73738383990")
                                                     .email("rick@gmail.com")
                                                 .build());
+    }
+
+    @Test
+    public void create_member_should_return_status_409_if_email_in_use() throws Exception, EmailTakenException {
+        doThrow(new EmailTakenException()).when(memberService).createMember(any());
+
+        this.mockMvc.perform(post("/members").content("""
+                        {
+                            "id":null,
+                            "name":"Rick",
+                            "phoneNumber":"73738383990",
+                            "email": "rick@gmail.com"
+                        }""").header("Content-Type", "application/json"))
+                .andExpect(status().isConflict());
     }
 }

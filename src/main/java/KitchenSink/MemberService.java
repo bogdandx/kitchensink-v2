@@ -18,7 +18,11 @@ public class MemberService {
         return memberRepository.findById(memberId);
     }
 
-    public void createMember(Member member) {
+    public void createMember(Member member) throws EmailTakenException {
+        if (memberRepository.existsMemberByEmail(member.getEmail())){
+            throw new EmailTakenException();
+        }
+
         memberRepository.save(member);
     }
 

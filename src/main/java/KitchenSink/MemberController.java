@@ -33,7 +33,11 @@ public class MemberController {
     }
 
     @PostMapping(value = "/members")
-    public void createMember(@RequestBody Member member){
-        memberService.createMember(member);
+    public void createMember(@RequestBody Member member) {
+        try {
+            memberService.createMember(member);
+        } catch (EmailTakenException e) {
+            throw new ResponseStatusException(HttpStatusCode.valueOf(HttpStatus.CONFLICT.value()));
+        }
     }
 }
