@@ -1,18 +1,17 @@
 package acceptance.steps;
 
+import acceptance.Database;
 import io.cucumber.java.Before;
 
-import java.sql.SQLException;
-
 public class Hooks {
-    private final ScenarioContext scenarioContext;
+    private final Database database;
 
     @Before
-    public void beforeScenario() throws SQLException {
-        scenarioContext.getDatabase().resetDatabase();
+    public void beforeScenario() {
+        database.resetDatabase();
     }
 
-    public Hooks(ScenarioContext scenarioContext){
-        this.scenarioContext = scenarioContext;
+    public Hooks(Database database){
+        this.database = database;
     }
 }

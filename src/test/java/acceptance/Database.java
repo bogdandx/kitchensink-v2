@@ -1,5 +1,6 @@
 package acceptance;
 
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
@@ -9,11 +10,13 @@ import java.sql.Statement;
 
 @Component
 public class Database {
-    public void resetDatabase() throws SQLException {
+    @SneakyThrows
+    public void resetDatabase() {
         executeQuery("delete from Member where id <> 0");
     }
 
-    public void deleteMember(int memberId) throws SQLException {
+    @SneakyThrows
+    public void deleteMember(int memberId) {
         executeQuery(String.format("delete from Member where id = %d", memberId));
     }
 
