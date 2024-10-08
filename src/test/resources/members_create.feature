@@ -49,3 +49,13 @@ Feature:
     And response message should contain the following errors
       | Field | Error                               |
       | email | must be a well-formed email address |
+
+  Scenario: Blank fields
+    When creating the following member
+      | Name | Phone Number | Email |
+      |      | 12345678908  |       |
+    Then status code should be 400
+    And response message should contain the following errors
+      | Field | Error                         |
+      | email | must not be empty             |
+      | name  | size must be between 1 and 25 |

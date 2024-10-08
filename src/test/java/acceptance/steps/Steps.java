@@ -106,7 +106,7 @@ public class Steps {
             String field = row.get("Field");
             String error = row.get("Error");
 
-            String json = String.format("{\"%s\":\"%s\"}", field, error);
+            String json = String.format("\"%s\":\"%s\"", field, error);
 
             assertThat(scenarioContext.getLastResponseBody()).contains(json);
         }
@@ -134,9 +134,9 @@ public class Steps {
 
             members.add( Member.builder()
                     .id(id)
-                    .name(row.get("Name").trim())
-                    .phoneNumber(row.get("Phone Number").trim())
-                    .email(row.get("Email").trim())
+                    .name(row.get("Name") == null ? "" : row.get("Name"))
+                    .phoneNumber(row.get("Phone Number") == null ? "" : row.get("Phone Number"))
+                    .email(row.get("Email") == null ? "" : row.get("Email"))
                     .build());
         }
 
