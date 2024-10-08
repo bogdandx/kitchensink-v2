@@ -143,4 +143,20 @@ public class MemberControllerTests {
                             "email":"Email taken"
                         }"""));
     }
+
+    @Test
+    public void create_member_should_return_status_400_if_phone_is_invalid() throws Exception, EmailTakenException {
+        this.mockMvc.perform(post("/members").content("""
+                        {
+                            "id":null,
+                            "name":"Rick",
+                            "phoneNumber":"73343738383990",
+                            "email": "rick@gmail.com"
+                        }""").header("Content-Type", "application/json"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json("""
+                        {
+                            "phoneNumber":"size must be between 10 and 12"
+                        }"""));
+    }
 }
