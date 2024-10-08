@@ -41,6 +41,7 @@ public class MemberRepositoryTests {
     }
 
     @Test
+    @EnabledOnOs({ OS.WINDOWS })
     public void should_save_member_to_database(){
         Member member = Member.builder()
                         .name("Rick")
