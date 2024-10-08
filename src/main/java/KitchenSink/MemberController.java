@@ -3,10 +3,13 @@ package KitchenSink;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class MemberController {
@@ -33,11 +36,15 @@ public class MemberController {
     }
 
     @PostMapping(value = "/members")
-    public void createMember(@RequestBody Member member) {
+    public ResponseEntity<Map<String,String>> createMember(@RequestBody Member member) {
         try {
             memberService.createMember(member);
         } catch (EmailTakenException e) {
-            throw new ResponseStatusException(HttpStatusCode.valueOf(HttpStatus.CONFLICT.value()));
+            Map<String, String> responseObj = new HashMap<>();;
+            responseObj.put("email", "Email taken");
+
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(responseObj);
         }
+        return null;
     }
 }

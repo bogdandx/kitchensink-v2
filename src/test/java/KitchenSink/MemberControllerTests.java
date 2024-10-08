@@ -137,6 +137,10 @@ public class MemberControllerTests {
                             "phoneNumber":"73738383990",
                             "email": "rick@gmail.com"
                         }""").header("Content-Type", "application/json"))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andExpect(content().json("""
+                        {
+                            "email":"Email taken"
+                        }"""));
     }
 }
