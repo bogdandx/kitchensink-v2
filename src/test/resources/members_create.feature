@@ -19,3 +19,6 @@ Feature:
       | Name               | Phone Number | Email                  |
       | Donna Davids-Myers | 3424234232   | donna.davids@gmail.com |
     Then status code should be 409
+    And response message should contain the following errors
+      | Field | Error       |
+      | email | Email taken |

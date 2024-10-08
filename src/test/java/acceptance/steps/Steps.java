@@ -98,6 +98,20 @@ public class Steps {
                 .containsExactlyInAnyOrderElementsOf(expectedMembers);
     }
 
+    @Then("response message should contain the following errors")
+    public void response_message_should_contain_the_following_errors(DataTable dataTable){
+        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
+
+        for(Map<String, String> row : rows){
+            String field = row.get("Field");
+            String error = row.get("Error");
+
+            String json = String.format("{\"%s\":\"%s\"}", field, error);
+
+            assertThat(scenarioContext.getLastResponseBody()).contains(json);
+        }
+    }
+
     private static Member extractSingleMemberFromTable(DataTable dataTable){
         List<Member> members = extractAllMembersFromTable(dataTable);
 
